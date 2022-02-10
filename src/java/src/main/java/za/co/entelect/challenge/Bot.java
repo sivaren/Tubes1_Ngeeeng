@@ -51,15 +51,14 @@ public class Bot {
             return FIX;
         }
         if (hasPowerUp(PowerUps.BOOST, myCar.powerups) && myCar.damage == 0 && myCar.speed < 15) {
-            projectedCar booster = perkiraan(myCar.position.lane, myCar.position.block, myCar.speed, myCar.damage,
+            projectedCar booster = perkiraan(myCar.position.lane, myCar.position.block, 15, myCar.damage,0,
                     gameState);
             if (booster.speed == 15) {
                 return BOOST;
             }
         }
         projectedCar maju = perkiraan(myCar.position.lane, myCar.position.block, nextSpeed(myCar.speed, myCar.damage),
-                myCar.damage,
-                gameState);
+                myCar.damage,0,gameState);
         if (maju.speed == nextSpeed(myCar.speed, myCar.damage)) {
             if (maju.speed == myCar.speed) {
                 // HARUSNYA DISINI NYERANG PEMAEN LAEN
@@ -70,18 +69,9 @@ public class Bot {
         } else {
             projectedCar kiri = new projectedCar();
             projectedCar kanan = new projectedCar();
-            if (myCar.position.lane - 1 > 0) {
-                kiri = perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed-1, myCar.damage, gameState);
-            } else {
-                kiri.speed = -1;
-                kiri.damage = 10;
-            }
-            if (myCar.position.lane + 1 < 4) {
-                kanan = perkiraan(myCar.position.lane + 1, myCar.position.block, myCar.speed-1, myCar.damage, gameState);
-            } else {
-                kanan.speed = -1;
-                kanan.damage = 10;
-            }
+            kiri =  perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed-1, myCar.damage,1, gameState);
+            kanan = perkiraan(myCar.position.lane + 1, myCar.position.block, myCar.speed-1, myCar.damage,1, gameState);
+
             switch (bestMove(maju, kiri, kanan, myCar, gameState)) {
                 case 1:
                     return ACCELERATE;
@@ -184,14 +174,20 @@ public class Bot {
         return input_speed;
     }
 
-    private projectedCar perkiraan(int lane, int block, int speed, int damage, GameState gameState) {
+    private projectedCar perkiraan(int lane, int block, int speed, int damage, int kirikanan,GameState gameState) {
+        projectedCar output = new projectedCar();
+        if(lane<1 || lane>4){
+            output.speed = -1;
+            output.damage = 10;
+            return output;
+        }
         List<Lane[]> map = gameState.lanes;
         // List<Object> blocks = new ArrayList<>();
         int startBlock = map.get(0)[0].position.block;
-        projectedCar output = new projectedCar();
-        output.speed = speed;
+        output.speed = speed+kirikanan;
         output.damage = damage;
         Lane[] laneList = map.get(lane - 1);
+
         for (int i = max(block - startBlock, 0); i <= block - startBlock + speed; i++) {
             if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
                 break;
@@ -200,7 +196,16 @@ public class Bot {
                 output.damage += 1;
                 output.speed = prevSpeed(output.speed, output.damage);
             }
+            if (laneList[i].terrain == Terrain.OIL_SPILL) {
+                output.damage += 1;
+                output.speed = prevSpeed(output.speed, output.damage);
+            }
             if (laneList[i].terrain == Terrain.WALL) {
+                output.damage += 2;
+                output.speed = 3;
+                output.speed = prevSpeed(output.speed, output.damage);
+            }
+            if(laneList[i].isOccupiedByCyberTruck){
                 output.damage += 2;
                 output.speed = 3;
                 output.speed = prevSpeed(output.speed, output.damage);
@@ -211,44 +216,35 @@ public class Bot {
 
     private int bestMove(projectedCar maju, projectedCar kiri, projectedCar kanan, Car myCar, GameState gameState) {
         // 1 - Maju, 2 - Kiri, 3- Kanan, 4 - LIZARD, 5 - Nyerang Orang
-        if (maju.speed == kiri.speed && maju.speed == kanan.speed) {
-            if(kanan.damage>=maju.damage && kiri.damage>=maju.damage){
-                if (hasPowerUp(PowerUps.LIZARD, myCar.powerups)) {
-                    int pakeLizard = worthPakeLizard(myCar.position.lane, myCar.position.block, myCar.speed, gameState);
-                    if (pakeLizard > kiri.speed && pakeLizard > kanan.speed) {
-                        return 4;
-                    }
-                }
+        if(kiri.speed<myCar.speed && kanan.speed<myCar.speed){
+            int lizard = worthPakeLizard(myCar.position.lane, myCar.position.block, myCar.speed, gameState);
+            if (lizard > maju.speed){
+                return 4;
             }
-            if (maju.damage == kiri.damage && maju.damage == kanan.damage) {
+        }
+        if(maju.speed == kiri.speed && maju.speed==kiri.speed){
+            if(maju.damage == kiri.damage && maju.damage==kanan.damage){
                 return 5;
             }
-            if (maju.damage <= kiri.damage && maju.damage <= kanan.damage) {
+        }
+        if(maju.speed>= kanan.speed && maju.speed >= kiri.speed){
+            if(maju.damage<= kiri.damage && maju.damage<=kanan.damage) {
                 return 1;
             }
-            if (myCar.position.lane == 3) {
+        }
+        if(myCar.position.lane==3){
+            if(kiri.speed>=maju.speed && kiri.speed >= kanan.speed) {
                 if (kiri.damage <= maju.damage && kiri.damage <= kanan.damage) {
                     return 2;
                 }
-                return 3;
-            } else {
-                if (kanan.damage <= maju.damage && kanan.damage <= kiri.damage) {
-                    return 3;
-                }
-                return 2;
-            }
-        }
-        if (maju.speed >= kiri.speed && maju.speed >= kanan.speed) {
-            return 1;
-        }
-        if (myCar.position.lane == 3) {
-            if (kiri.speed >= maju.speed && kiri.speed >= kanan.speed) {
-                return 2;
             }
             return 3;
-        } else {
-            if (kanan.speed >= maju.speed && kanan.speed >= kiri.speed) {
-                return 3;
+        }
+        else {
+            if(kanan.speed>=maju.speed && kanan.speed>= kiri.speed){
+                if(kanan.damage<=maju.damage && kanan.damage<= kiri.damage){
+                    return 3;
+                }
             }
             return 2;
         }
