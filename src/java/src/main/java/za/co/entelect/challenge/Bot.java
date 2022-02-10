@@ -71,13 +71,13 @@ public class Bot {
             projectedCar kiri = new projectedCar();
             projectedCar kanan = new projectedCar();
             if (myCar.position.lane - 1 > 0) {
-                kiri = perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed, myCar.damage, gameState);
+                kiri = perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed-1, myCar.damage, gameState);
             } else {
                 kiri.speed = -1;
                 kiri.damage = 10;
             }
             if (myCar.position.lane + 1 < 4) {
-                kanan = perkiraan(myCar.position.lane + 1, myCar.position.block, myCar.speed, myCar.damage, gameState);
+                kanan = perkiraan(myCar.position.lane + 1, myCar.position.block, myCar.speed-1, myCar.damage, gameState);
             } else {
                 kanan.speed = -1;
                 kanan.damage = 10;
@@ -212,10 +212,12 @@ public class Bot {
     private int bestMove(projectedCar maju, projectedCar kiri, projectedCar kanan, Car myCar, GameState gameState) {
         // 1 - Maju, 2 - Kiri, 3- Kanan, 4 - LIZARD, 5 - Nyerang Orang
         if (maju.speed == kiri.speed && maju.speed == kanan.speed) {
-            if (hasPowerUp(PowerUps.LIZARD, myCar.powerups)) {
-                int pakeLizard = worthPakeLizard(myCar.position.lane, myCar.position.block, myCar.speed, gameState);
-                if (pakeLizard > kiri.speed && pakeLizard > kanan.speed) {
-                    return 4;
+            if(kanan.damage>=maju.damage && kiri.damage>=maju.damage){
+                if (hasPowerUp(PowerUps.LIZARD, myCar.powerups)) {
+                    int pakeLizard = worthPakeLizard(myCar.position.lane, myCar.position.block, myCar.speed, gameState);
+                    if (pakeLizard > kiri.speed && pakeLizard > kanan.speed) {
+                        return 4;
+                    }
                 }
             }
             if (maju.damage == kiri.damage && maju.damage == kanan.damage) {
