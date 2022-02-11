@@ -50,29 +50,29 @@ public class Bot {
         if (myCar.damage >= 2) {
             return FIX;
         }
-        if (hasPowerUp(PowerUps.BOOST, myCar.powerups) && myCar.damage == 0 && myCar.speed < 15) {
-            projectedCar booster = perkiraan(myCar.position.lane, myCar.position.block, 15, myCar.damage,0,
-                    gameState);
+        if (isPowerUp_avail(PowerUps.BOOST, myCar.powerups) && myCar.damage == 0 && myCar.speed < 15) {
+            projectedCar booster = perkiraan(myCar.position.lane, myCar.position.block, 15, myCar.damage, 0, gameState);
+
             if (booster.speed == 15) {
                 return BOOST;
             }
         }
-        projectedCar maju = perkiraan(myCar.position.lane, myCar.position.block, nextSpeed(myCar.speed, myCar.damage),
-                myCar.damage,0,gameState);
-        if (maju.speed == nextSpeed(myCar.speed, myCar.damage)) {
-            if (maju.speed == myCar.speed) {
+        projectedCar goForward = perkiraan(myCar.position.lane, myCar.position.block, nextSpeed(myCar.speed, myCar.damage),
+                myCar.damage, 0, gameState);
+        if (goForward.speed == nextSpeed(myCar.speed, myCar.damage)) {
+            if (goForward.speed == myCar.speed) {
                 // HARUSNYA DISINI NYERANG PEMAEN LAEN
                 return ACCELERATE;
             } else {
                 return ACCELERATE;
             }
         } else {
-            projectedCar kiri = new projectedCar();
-            projectedCar kanan = new projectedCar();
-            kiri =  perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed-1, myCar.damage,1, gameState);
-            kanan = perkiraan(myCar.position.lane + 1, myCar.position.block, myCar.speed-1, myCar.damage,1, gameState);
+            projectedCar turnLeft = new projectedCar();
+            projectedCar turnRight = new projectedCar();
+            turnLeft =  perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
+            turnRight = perkiraan(myCar.position.lane + 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
 
-            switch (bestMove(maju, kiri, kanan, myCar, gameState)) {
+            switch (bestMove(goForward, turnLeft, turnRight, myCar, gameState)) {
                 case 1:
                     return ACCELERATE;
                 case 2:
@@ -91,9 +91,9 @@ public class Bot {
         return ACCELERATE;
     }
 
-    // Check Available PowerUps
-    private Boolean hasPowerUp(PowerUps powerUpToCheck, PowerUps[] available) {
-        for (PowerUps powerUp : available) {
+    /* CHECK KEBERADAAN SUATU POWER UP */
+    private Boolean isPowerUp_avail(PowerUps powerUpToCheck, PowerUps[] powerUps) {
+        for (PowerUps powerUp : powerUps) {
             if (powerUp.equals(powerUpToCheck)) {
                 return true;
             }
@@ -123,60 +123,46 @@ public class Bot {
         return blocks;
     }
 
-    // Additional Functions
-    // =====================================================================
+    /* ADDITIONAL SECTION */
     public class projectedCar {
         public int speed;
         public int damage;
     }
 
+    /* 
+    FUNGSI UTK RETURN SPEED STATE BERIKUTNYA
+    DARI SPEED STATE SAAT INI (dengan mempertimbangkan kondisi damage)
+    */
     int nextSpeed(int input_speed, int damage) {
-        if (input_speed == 0 && damage < 5) {
-            return 3;
-        }
-        if (input_speed == 3 && damage < 4) {
-            return 6;
-        }
-        if (input_speed == 5 && damage < 4) {
-            return 6;
-        }
-        if (input_speed == 6 && damage < 3) {
-            return 8;
-        }
-        if (input_speed == 9 && damage < 2) {
-            return 9;
-        }
+        if (input_speed == 0 && damage < 5) { return 3; }
+        if (input_speed == 3 && damage < 4) { return 6; }
+        if (input_speed == 5 && damage < 4) { return 6; }
+        if (input_speed == 6 && damage < 3) { return 8; }
+        if (input_speed == 9 && damage < 2) { return 9; } // ini mksdnya input_speed == 8 ??
+        
+        return input_speed;
+    }
+    
+    /* 
+    FUNGSI UTK RETURN SPEED STATE SEBELUMNYA 
+    DARI SPEED STATE SAAT INI (dengan mempertimbangkan kondisi damage)
+    */
+    int prevSpeed(int input_speed, int damage) { // ini return speed misal speedState turun | ini damagenya jg harus dipertimbangin gasih??
+        if (damage >= 5)        { return 0; }
+        if (input_speed == 3)   { return 3; }  // ini maksudnya return 0 ???
+        if (input_speed == 15)  { return 9; }
+        if (input_speed == 9)   { return 8; }
+        if (input_speed == 8)   { return 6; }
+        if (input_speed == 6)   { return 3; }
+        if (input_speed == 5)   { return 3; }
+
         return input_speed;
     }
 
-    int prevSpeed(int input_speed, int damage) {
-        if (damage >= 5) {
-            return 0;
-        }
-        if (input_speed == 3) {
-            return 3;
-        }
-        if (input_speed == 15) {
-            return 9;
-        }
-        if (input_speed == 9) {
-            return 8;
-        }
-        if (input_speed == 8) {
-            return 6;
-        }
-        if (input_speed == 6) {
-            return 3;
-        }
-        if (input_speed == 5) {
-            return 3;
-        }
-        return input_speed;
-    }
-
-    private projectedCar perkiraan(int lane, int block, int speed, int damage, int kirikanan,GameState gameState) {
+    /* ??? */
+    private projectedCar perkiraan(int lane, int block, int speed, int damage, int kirikanan, GameState gameState) {
         projectedCar output = new projectedCar();
-        if(lane<1 || lane>4){
+        if(lane < 1 || lane > 4){
             output.speed = -1;
             output.damage = 10;
             return output;
@@ -184,10 +170,12 @@ public class Bot {
         List<Lane[]> map = gameState.lanes;
         // List<Object> blocks = new ArrayList<>();
         int startBlock = map.get(0)[0].position.block;
-        output.speed = speed+kirikanan;
+        output.speed = speed + kirikanan;
         output.damage = damage;
         Lane[] laneList = map.get(lane - 1);
 
+        // ini bisa langsung i = block - startBlock, ga sih?
+        // dan bisa block-startBlock = block gasih??
         for (int i = max(block - startBlock, 0); i <= block - startBlock + speed; i++) {
             if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
                 break;
@@ -203,46 +191,47 @@ public class Bot {
             if (laneList[i].terrain == Terrain.WALL) {
                 output.damage += 2;
                 output.speed = 3;
-                output.speed = prevSpeed(output.speed, output.damage);
+                output.speed = prevSpeed(output.speed, output.damage); // ini buat apa lagi?
             }
             if(laneList[i].isOccupiedByCyberTruck){
                 output.damage += 2;
                 output.speed = 3;
-                output.speed = prevSpeed(output.speed, output.damage);
+                output.speed = prevSpeed(output.speed, output.damage); // ini buat apa lagi?
             }
         }
         return output;
     }
 
-    private int bestMove(projectedCar maju, projectedCar kiri, projectedCar kanan, Car myCar, GameState gameState) {
+    // ini misal di lane 1 atau 4 gimana?
+    private int bestMove(projectedCar goForward, projectedCar turnLeft, projectedCar turnRight, Car myCar, GameState gameState) {
         // 1 - Maju, 2 - Kiri, 3- Kanan, 4 - LIZARD, 5 - Nyerang Orang
-        if(kiri.speed<myCar.speed && kanan.speed<myCar.speed){
-            int lizard = worthPakeLizard(myCar.position.lane, myCar.position.block, myCar.speed, gameState);
-            if (lizard > maju.speed){
+        if(turnLeft.speed < myCar.speed && turnRight.speed < myCar.speed){
+            int lizard = isWorth_useLizard(myCar.position.lane, myCar.position.block, myCar.speed, gameState);
+            if (lizard > goForward.speed){
                 return 4;
             }
         }
-        if(maju.speed == kiri.speed && maju.speed==kiri.speed){
-            if(maju.damage == kiri.damage && maju.damage==kanan.damage){
+        if(goForward.speed == turnLeft.speed && goForward.speed == turnLeft.speed){
+            if(goForward.damage == turnLeft.damage && goForward.damage == turnRight.damage){
                 return 5;
             }
         }
-        if(maju.speed>= kanan.speed && maju.speed >= kiri.speed){
-            if(maju.damage<= kiri.damage && maju.damage<=kanan.damage) {
+        if(goForward.speed >= turnRight.speed && goForward.speed >= turnLeft.speed){
+            if(goForward.damage <= turnLeft.damage && goForward.damage <= turnRight.damage) {
                 return 1;
             }
         }
         if(myCar.position.lane==3){
-            if(kiri.speed>=maju.speed && kiri.speed >= kanan.speed) {
-                if (kiri.damage <= maju.damage && kiri.damage <= kanan.damage) {
+            if(turnLeft.speed >= goForward.speed && turnLeft.speed >= turnRight.speed) {
+                if (turnLeft.damage <= goForward.damage && turnLeft.damage <= turnRight.damage) {
                     return 2;
                 }
             }
             return 3;
         }
         else {
-            if(kanan.speed>=maju.speed && kanan.speed>= kiri.speed){
-                if(kanan.damage<=maju.damage && kanan.damage<= kiri.damage){
+            if(turnRight.speed >= goForward.speed && turnRight.speed >= turnLeft.speed){
+                if(turnRight.damage <= goForward.damage && turnRight.damage <= turnLeft.damage){
                     return 3;
                 }
             }
@@ -250,12 +239,15 @@ public class Bot {
         }
     }
 
-    int worthPakeLizard(int lane, int block, int speed, GameState gameState) {
+    /* 
+    FUNGSI MENENTUKAN APAKAH POWERUP LIZARD WORTH UNTUK DIPAKAI 
+    */
+    int isWorth_useLizard(int lane, int block, int speed, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
         // List<Object> blocks = new ArrayList<>();
-        int startBlock = map.get(0)[0].position.block;
+        int startBlock = map.get(0)[0].position.block; // ini garis start??
         boolean found = false;
-        Lane[] laneList = map.get(lane - 1);
+        Lane[] laneList = map.get(lane - 1);    // ini maksudnya kalo di lane 2, brarti sama aja map.get(3 - 1) ??
         for (int i = max(block - startBlock, 0); i <= block - startBlock + speed; i++) {
             if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
                 found = true;
@@ -273,6 +265,7 @@ public class Bot {
         if (!found) {
             return 0;
         } else {
+            // ini kondisi pasti ga terpenuhi gasih??
             if (laneList[block - startBlock + speed].terrain != Terrain.MUD
                     && laneList[block - startBlock + speed].terrain != Terrain.WALL) {
                 return 0;
@@ -281,5 +274,4 @@ public class Bot {
             }
         }
     }
-
 }

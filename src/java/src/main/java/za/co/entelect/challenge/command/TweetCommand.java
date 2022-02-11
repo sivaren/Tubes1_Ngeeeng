@@ -13,5 +13,4 @@ public class TweetCommand implements Command {
     public String render() {
         return String.format("USE_TWEET %d %d",lane,block);
     }
-
 }
