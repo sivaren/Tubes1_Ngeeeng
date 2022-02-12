@@ -50,7 +50,7 @@ public class Bot {
         if (myCar.damage >= 2) {
             return FIX;
         }
-        if (isPowerUp_avail(PowerUps.BOOST, myCar.powerups) && myCar.damage == 0 && myCar.speed < 15) {
+        if (hasPowerUp(PowerUps.BOOST, myCar.powerups) && myCar.damage == 0 && myCar.speed < 15) {
             projectedCar booster = perkiraan(myCar.position.lane, myCar.position.block, 15, myCar.damage, 0, gameState);
 
             if (booster.speed == 15) {
@@ -83,6 +83,8 @@ public class Bot {
                     return LIZARD;
                 case 5:
                     // HARUSNYA DISINI NYERANG PEMAEN LAEN
+                    if (hasPowerUp(PowerUps.OIL, myCar.powerups))  { return OIL; }
+                    if (hasPowerUp(PowerUps.EMP, myCar.powerups))  { return EMP; }
                     return ACCELERATE;
                 default:
                     break;
@@ -92,7 +94,7 @@ public class Bot {
     }
 
     /* CHECK KEBERADAAN SUATU POWER UP */
-    private Boolean isPowerUp_avail(PowerUps powerUpToCheck, PowerUps[] powerUps) {
+    private Boolean hasPowerUp(PowerUps powerUpToCheck, PowerUps[] powerUps) {
         for (PowerUps powerUp : powerUps) {
             if (powerUp.equals(powerUpToCheck)) {
                 return true;
@@ -211,7 +213,7 @@ public class Bot {
                 return 4;
             }
         }
-        if(goForward.speed == turnLeft.speed && goForward.speed == turnLeft.speed){
+        if(goForward.speed == turnLeft.speed && goForward.speed == turnLeft.speed){ // mungkin ini mksdny goForward.speed == turnRight.speed
             if(goForward.damage == turnLeft.damage && goForward.damage == turnRight.damage){
                 return 5;
             }
@@ -221,7 +223,7 @@ public class Bot {
                 return 1;
             }
         }
-        if(myCar.position.lane==3){
+        if(myCar.position.lane == 3){
             if(turnLeft.speed >= goForward.speed && turnLeft.speed >= turnRight.speed) {
                 if (turnLeft.damage <= goForward.damage && turnLeft.damage <= turnRight.damage) {
                     return 2;
