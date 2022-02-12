@@ -157,17 +157,12 @@ public class Bot {
             if (hasPowerUp(PowerUps.OIL, myCar.powerups)) { return USE_OIL; }
             if (hasPowerUp(PowerUps.EMP, myCar.powerups)) { return USE_EMP; }
         } else {
-            if (hasPowerUp(PowerUps.TWEET, myCar.powerups)) { // masih ada pikiran buat diganti
-                int opponentLane = getOpponentLane (opponent); 
-                // int opponentBlock = getOpponentBlock (opponent); 
-                int myCarLane = getMyCarLane (myCar);   
+            if (hasPowerUp(PowerUps.TWEET, myCar.powerups)) {
+                int opponentLane = getOpponentLane (opponent);
+                int opponentBlock = getOpponentBlock (opponent);
+                Command USE_TWEET = new TweetCommand(opponentLane, opponentBlock + 1);
 
-                if (myCarLane != opponentLane) {
-                    int opponentBlock = getOpponentBlock (opponent); 
-                    Command USE_TWEET = new TweetCommand(opponentLane, opponentBlock + 1);
-                    
-                    return USE_TWEET;
-                }
+                return USE_TWEET;
             }
             if (hasPowerUp(PowerUps.EMP, myCar.powerups)) { return USE_EMP; }
             if (hasPowerUp(PowerUps.OIL, myCar.powerups)) { return USE_OIL; }
