@@ -1,4 +1,4 @@
-package za.co.entelect.challenge;
+public package za.co.entelect.challenge;
 
 import za.co.entelect.challenge.command.*;
 import za.co.entelect.challenge.entities.*;
@@ -16,6 +16,10 @@ public class Bot {
     private List<Command> directionList = new ArrayList<>();
 
     private final Random random;
+    /*
+     * private Random random;
+     * private GameState gameState;
+     */
     private Car opponent;
     private Car myCar;
 
@@ -37,51 +41,29 @@ public class Bot {
     public Command run(GameState gameState) {
         Car myCar = gameState.player;
         Car opponent = gameState.opponent;
-        
-        /* ALGORITMA */
-
-        /* Skenario 1: mobil memiliki damage >= 2 */
-        // Command FIX akan digunakan
-        // Karena satu kali menggunakan command FIX akan menurunkan damage sebanyak 2,
-        // command FIX hanya digunakan bila damage >= 2
         if (myCar.damage >= 2) {
             return FIX;
         }
-
-        /* Skenario 2: mobil memiliki damage < 2 dan memiliki BOOST */
-        // Command USE_BOOST akan digunakan
-        // Command USE_BOOST akan digunakan bila speed mobil setelah di-boost menjadi 15,
-        // yaitu ketika tidak ada halangan yang dapat mengurangi speed
         if (hasPowerUp(PowerUps.BOOST, myCar.powerups) && myCar.damage == 0 && myCar.speed < 15) {
             projectedCar booster = perkiraan(myCar.position.lane, myCar.position.block, 15, myCar.damage, 0, gameState);
+
             if (booster.speed == 15) {
                 return USE_BOOST;
             }
         }
-
-        /* Skenario 3: mobil memiliki damage < 2, namun tidak memiliki BOOST */
-        // Command yang akan dipakai: ACCELERATE, TURN_RIGHT, TURN_LEFT, USE_LIZARD, atau menyerang lawan
-        // Memperkirakan kondisi bila mobil maju (lurus)
         projectedCar goForward = perkiraan(myCar.position.lane, myCar.position.block, nextSpeed(myCar.speed, myCar.damage),
                 myCar.damage, 0, gameState);
-
-        // Bila tidak ada halangan yang akan menurunkan speed mobil, mobil akan jalan lurus
-        // dengan dua opsi: sambil menyerang pemain lain atau sambil akselerasi
         if (goForward.speed == nextSpeed(myCar.speed, myCar.damage)) {
             if (goForward.speed == myCar.speed) {
-                // Bila akselerasi tidak menaikkan speed mobil, serangan pada lawan akan diluncurkan
+                // HARUSNYA DISINI NYERANG PEMAEN LAEN
                 return attackConsideration(myCar, opponent);
             } else {
-                // Bila akselerasi masih dapat menaikkan speed mobil, maka mobil berakselerasi
                 return ACCELERATE;
             }
-
-        // Bila ada halangan yang akan menurunkan speed mobil,
-        // algoritma akan membandingkan keuntungan ACCELERATE, TURN_LEFT, TURN_RIGHT, USE_LIZARD, atau menyerang lawan
         } else {
             projectedCar turnLeft = new projectedCar();
             projectedCar turnRight = new projectedCar();
-            turnLeft = perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
+            turnLeft =  perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
             turnRight = perkiraan(myCar.position.lane + 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
 
             switch (bestMove(goForward, turnLeft, turnRight, myCar, gameState)) {
@@ -94,6 +76,7 @@ public class Bot {
                 case 4:
                     return USE_LIZARD;
                 case 5:
+                    // HARUSNYA DISINI NYERANG PEMAEN LAEN
                     return attackConsideration(myCar, opponent);
                 default:
                     break;
@@ -199,7 +182,7 @@ public class Bot {
         if (input_speed == 3 && damage < 4) { return 6; }
         if (input_speed == 5 && damage < 4) { return 6; }
         if (input_speed == 6 && damage < 3) { return 8; }
-        if (input_speed == 8 && damage < 2) { return 9; }
+        if (input_speed == 8 && damage < 2) { return 9; } // (fixed) ini mksdnya input_speed == 8 ??
         if (input_speed == 9 && damage < 1) { return 9; }
         return input_speed;
     }
@@ -210,7 +193,7 @@ public class Bot {
     */
     int prevSpeed(int input_speed, int damage) { // ini return speed misal speedState turun | ini damagenya jg harus dipertimbangin gasih??
         if (damage >= 5)        { return 0; }
-        if (input_speed == 3)   { return 0; }
+        if (input_speed == 3)   { return 0; }  // (fixed) ini maksudnya return 0 ???
         if (input_speed == 15)  { return 9; }
         if (input_speed == 9)   { return 8; }
         if (input_speed == 8)   { return 6; }
@@ -270,7 +253,7 @@ public class Bot {
                 return 4;
             }
         }
-        if(goForward.speed == turnLeft.speed && goForward.speed == turnRight.speed){
+        if(goForward.speed == turnLeft.speed && goForward.speed == turnLeft.speed){ // mungkin ini mksdny goForward.speed == turnRight.speed??
             if(goForward.damage == turnLeft.damage && goForward.damage == turnRight.damage){
                 return 5;
             }
@@ -331,4 +314,6 @@ public class Bot {
             }
         }
     }
+}class BotBackUp {
+  
 }
