@@ -230,7 +230,6 @@ public class Bot {
             return output;
         }
         List<Lane[]> map = gameState.lanes;
-        // List<Object> blocks = new ArrayList<>();
         int startBlock = map.get(0)[0].position.block;
         output.speed = speed + kirikanan;
         output.damage = damage;
@@ -301,7 +300,6 @@ public class Bot {
     /* FUNGSI MENENTUKAN APAKAH POWERUP LIZARD WORTH UNTUK DIPAKAI */
     int isWorth_useLizard(int lane, int block, int speed, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
-        // List<Object> blocks = new ArrayList<>();
         int startBlock = map.get(0)[0].position.block; 
         boolean found = false;
         Lane[] laneList = map.get(lane - 1);   
