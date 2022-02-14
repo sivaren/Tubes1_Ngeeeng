@@ -323,8 +323,10 @@ public class Bot {
             return 0;
         } else {
             // ini kondisi pasti ga terpenuhi gasih??
-            if (laneList[block - startBlock + speed].terrain != Terrain.MUD
-                    && laneList[block - startBlock + speed].terrain != Terrain.WALL) {
+            if (laneList[block - startBlock + speed].terrain == Terrain.MUD
+                    || laneList[block - startBlock + speed].terrain == Terrain.WALL
+                    || laneList[block - startBlock + speed].terrain == Terrain.OIL_SPILL
+                    || laneList[block - startBlock + speed].isOccupiedByCyberTruck) {
                 return 0;
             } else {
                 return speed;
