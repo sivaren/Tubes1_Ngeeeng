@@ -53,7 +53,7 @@ public class Bot {
         // Command USE_BOOST akan digunakan bila speed mobil setelah di-boost menjadi 15,
         // yaitu ketika tidak ada halangan yang dapat mengurangi speed
         if (hasPowerUp(PowerUps.BOOST, myCar.powerups) && myCar.damage == 0 && myCar.speed < 15) {
-            projectedCar booster = perkiraan(myCar.position.lane, myCar.position.block, 15, myCar.damage, 0, gameState);
+            projectedCar booster = projectedMove(myCar.position.lane, myCar.position.block, 15, myCar.damage, 0, gameState);
             if (booster.speed == 15) {
                 return USE_BOOST;
             }
@@ -62,7 +62,7 @@ public class Bot {
         /* Skenario 3: mobil memiliki damage < 2, namun tidak memiliki BOOST */
         // Command yang akan dipakai: ACCELERATE, TURN_RIGHT, TURN_LEFT, USE_LIZARD, atau menyerang lawan
         // Memperkirakan kondisi bila mobil maju (lurus)
-        projectedCar goForward = perkiraan(myCar.position.lane, myCar.position.block, nextSpeed(myCar.speed, myCar.damage),
+        projectedCar goForward = projectedMove(myCar.position.lane, myCar.position.block, nextSpeed(myCar.speed, myCar.damage),
                 myCar.damage, 0, gameState);
 
         // Bila tidak ada halangan yang akan menurunkan speed mobil, mobil akan jalan lurus
@@ -81,8 +81,8 @@ public class Bot {
         } else {
             projectedCar turnLeft = new projectedCar();
             projectedCar turnRight = new projectedCar();
-            turnLeft = perkiraan(myCar.position.lane - 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
-            turnRight = perkiraan(myCar.position.lane + 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
+            turnLeft = projectedMove(myCar.position.lane - 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
+            turnRight = projectedMove(myCar.position.lane + 1, myCar.position.block, myCar.speed - 1, myCar.damage, 1, gameState);
 
             switch (bestMove(goForward, turnLeft, turnRight, myCar, gameState)) {
                 case 1:
@@ -200,7 +200,7 @@ public class Bot {
         return input_speed;
     }
 
-    private projectedCar perkiraan(int lane, int block, int speed, int damage, int kirikanan, GameState gameState) {
+    private projectedCar projectedMove(int lane, int block, int speed, int damage, int kirikanan, GameState gameState) {
         projectedCar output = new projectedCar();
         if(lane < 1 || lane > 4){
             output.speed = -1;
