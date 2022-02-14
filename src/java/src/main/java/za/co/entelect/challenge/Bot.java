@@ -113,28 +113,6 @@ public class Bot {
     }
     /* CHECK KEBERADAAN SUATU POWER UP */
 
-    /**
-     * Returns map of blocks and the objects in the for the current lanes, returns
-     * the amount of blocks that can be
-     * traversed at max speed.
-     **/
-    private List<Object> getBlocksInFront(int lane, int block, GameState gameState) {
-        List<Lane[]> map = gameState.lanes;
-        List<Object> blocks = new ArrayList<>();
-        int startBlock = map.get(0)[0].position.block;
-
-        Lane[] laneList = map.get(lane - 1);
-        for (int i = max(block - startBlock, 0); i <= block - startBlock + Bot.maxSpeed; i++) {
-            if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
-                break;
-            }
-
-            blocks.add(laneList[i].terrain);
-
-        }
-        return blocks;
-    }
-
     /* ADDITIONAL SECTION */
     /* GETTER */
     private int getOpponentLane (Car opponent)  { return opponent.position.lane;    }
@@ -298,7 +276,7 @@ public class Bot {
     }
 
     /* FUNGSI MENENTUKAN APAKAH POWERUP LIZARD WORTH UNTUK DIPAKAI */
-    int isWorth_useLizard(int lane, int block, int speed, GameState gameState) {
+    private int isWorth_useLizard(int lane, int block, int speed, GameState gameState) {
         List<Lane[]> map = gameState.lanes;
         int startBlock = map.get(0)[0].position.block; 
         boolean found = false;
