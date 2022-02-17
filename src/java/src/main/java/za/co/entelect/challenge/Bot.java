@@ -140,7 +140,7 @@ public class Bot {
             if (hasPowerUp(PowerUps.TWEET, myCar.powerups)) {
                 int opponentLane = getOpponentLane (opponent); 
                 int opponentBlock = getOpponentBlock (opponent); 
-                Command USE_TWEET = new TweetCommand(opponentLane, opponentBlock + 1);
+                Command USE_TWEET = new TweetCommand(opponentLane, opponentBlock + 4 + opponent.speed);
                 
                 return USE_TWEET;
             }
@@ -154,7 +154,7 @@ public class Bot {
                 if (hasPowerUp(PowerUps.EMP, myCar.powerups)) { return USE_EMP; }
             }
             if (hasPowerUp(PowerUps.TWEET, myCar.powerups)) {
-                Command USE_TWEET = new TweetCommand(opponentLane, opponentBlock + 1);
+                Command USE_TWEET = new TweetCommand(opponentLane, opponentBlock + 4 + opponent.speed);
                 return USE_TWEET;
             }
             if (hasPowerUp(PowerUps.OIL, myCar.powerups)) { return USE_OIL; }
@@ -241,7 +241,8 @@ public class Bot {
 
     private int bestMove(projectedCar goForward, projectedCar turnLeft, projectedCar turnRight, Car myCar, GameState gameState) {
         // 1 - Maju, 2 - Kiri, 3- Kanan, 4 - LIZARD, 5 - Nyerang Orang
-        if(turnLeft.speed < myCar.speed && turnRight.speed < myCar.speed){
+        if(turnLeft.speed < myCar.speed && turnRight.speed < myCar.speed && hasPowerUp(PowerUps.LIZARD, myCar.powerups
+        )){
             int lizard = isWorth_useLizard(myCar.position.lane, myCar.position.block, myCar.speed, gameState);
             if (lizard > goForward.speed){
                 return 4;
