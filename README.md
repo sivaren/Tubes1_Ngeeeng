@@ -39,11 +39,11 @@ Build program digunakan jika mengubah kode pada folder src/java/src
 Cara Build Program:
 1. Buka Intellij IDEA
 2. Buka Folder src/java dari tempat code github ini di clone
-3.  click maven pada bagian kanan Intelid IDEA (di bawah tombol close program)
+3.  click maven pada bagian kanan Intellij IDEA (di bawah tombol close program)
 4.  click java-starter-bot
 5.  click Lifecycle
 6.  double click install
-7.  program berhasil di bulild pada folder target di src/java
+7.  program berhasil di build pada folder target di src/java
 
 
 ## Run Program
